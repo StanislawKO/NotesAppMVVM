@@ -10,9 +10,7 @@ import com.codexample.notesappmvvm.database.firebase.AppFirebaseRepository
 import com.codexample.notesappmvvm.database.room.AppRoomDatabase
 import com.codexample.notesappmvvm.database.room.repository.RoomRepository
 import com.codexample.notesappmvvm.model.Note
-import com.codexample.notesappmvvm.utils.REPOSITORY
-import com.codexample.notesappmvvm.utils.TYPE_FIREBASE
-import com.codexample.notesappmvvm.utils.TYPE_ROOM
+import com.codexample.notesappmvvm.utils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -31,8 +29,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             TYPE_FIREBASE -> {
                 REPOSITORY = AppFirebaseRepository()
                 REPOSITORY.connectToDatabase(
-                    {onSuccess()},
-                    {Log.d("checkData", "Error: $it")}
+                    { onSuccess() },
+                    { Log.d("checkData", "Error: $it") }
                 )
             }
         }
@@ -69,6 +67,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun readAllNotes() = REPOSITORY.readAll
+
+    fun signOut(onSuccess: () -> Unit) {
+        when (DB_TYPE.value) {
+            TYPE_FIREBASE,
+            TYPE_ROOM -> {
+                REPOSITORY.signOut()
+                DB_TYPE.value = Constants.Keys.EMPTY
+                onSuccess()
+            }
+            else -> Log.d("checkData", "signOut: ELSE: ${DB_TYPE.value}")
+        }
+    }
 }
 
 class MainViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
